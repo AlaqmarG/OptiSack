@@ -12,7 +12,7 @@ Item* read_items(const char* filename, int* count) {
     FILE *file = fopen(filename, "r");
 
     char line[256];
-    Item *items = malloc(50 * sizeof(Item));
+    Item *items = new Item[50];
     
     *count = 0;
     
@@ -21,7 +21,8 @@ Item* read_items(const char* filename, int* count) {
     
     while (fgets(line, sizeof(line), file) != NULL && *count < 50) {
         char *token = strtok(line, ":");
-        items[*count].name = strdup(token);
+        items[*count].name = new char[strlen(token) + 1];
+        strcpy(items[*count].name, token);
         token = strtok(NULL, ":");
         items[*count].value = strtod(token, NULL);
         token = strtok(NULL, ":");

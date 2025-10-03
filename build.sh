@@ -1,4 +1,4 @@
 mkdir -p out
-gcc index.c parser/parser.c -o out/index
+g++ index.cpp parser/parser.cpp -o out/index
 ./out/index
 rm -rf out

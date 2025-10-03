@@ -9,3 +9,14 @@ int main() {
         printf("{name: %s, value: %f, weight: %f}\n", items[i].name, items[i].value, items[i].weight);
     }
 }
+
+/*
+TreeNode
+name: string
+value: float
+weight: float
+left: node 1
+right: node 0
+
+.add(isleft, name, value, weight)
+*/
