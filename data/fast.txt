@@ -1,0 +1,201 @@
+Name:Value:Weight
+Brown eggs:65.1:758.77
+Sweet fresh strawberry:20.82:779.12
+Blackberries:18.66:663.38
+Banana bread:11.18:630.87
+Hazelnut bowl:55.54:566.92
+Organic tomato:42.59:520.59
+Banana bread:65.39:407.79
+Orange juice:18.16:354.45
+Cherries:17.67:770.95
+Organic tomato:37.34:770.1
+Pesto with basil:54.87:502.21
+Cottage cheese:18.99:697.08
+Pecan nuts:65.86:332.94
+Baking cake:14.83:625.74
+Stuffed mushrooms:19.51:742.35
+Brown eggs:29.08:320.9
+Sweet fresh strawberry:58.15:765.64
+Organic tomato:29.6:622.35
+Avocado toast:40.36:757.94
+Quinoa bowl:50.34:535.49
+Orange juice:52.56:726.37
+Pears juice:56.16:798.5
+Balsamic vinegar:58.77:322.73
+Strawberry jelly:53.34:452.56
+Raspberries:13.84:671.76
+Asparagus:15.67:786.76
+Blueberries:21.89:525.89
+Quinoa bowl:55.23:457.83
+Asparagus:52.06:344.62
+Dark chocolate:23.27:716.29
+Cherries:44.61:671.71
+Sweet potato:68.96:793.36
+Cherries:37.05:481.73
+Organic tomato:61.97:391.11
+Chicken eggs:15.03:463.57
+Baking cake:29.01:600.33
+Oatmeal cookies:41.03:509.28
+Mango slices:33.96:308.91
+Canned tomatos:18.95:539.21
+Vegan pizza:22.1:460.9
+Pesto with basil:42.67:529.66
+Coconut oil:60.87:334.51
+Honey jar:43.32:738.03
+Vegan pizza:15.87:392.06
+Cherries:65.62:587.21
+Fresh tomato:16.78:416.21
+Eggplant:48.08:555.99
+Maple syrup:69.77:624.44
+Green beans:46.17:644.81
+Honey jar:62.15:409.84
+Cherries:24.14:693.68
+Green smoothie:45.18:480.27
+Blueberries:66.8:618.85
+Cinnamon:67.4:744.15
+Pears juice:24.82:488.25
+Orange juice:54.88:407.72
+Raw legumes:17.73:421.31
+Mango slices:44.06:766.78
+Homemade bread:58.71:663.39
+Sweet fresh strawberry:16.15:625.93
+Brown eggs:24.34:640.69
+Baking cake:50.43:677.29
+Green beans:45.52:763.17
+Asparagus:64.17:386.97
+Pineapple chunks:30.27:653.83
+Canned tomatos:39.28:735.62
+Mango slices:26.92:628.22
+Baking cake:64.82:672.16
+Stuffed mushrooms:53.57:544.7
+Pears juice:38.08:409.42
+Quinoa bowl:68.7:770.69
+Asparagus:51.08:718.5
+Olive oil:47.68:583.06
+Pesto with basil:58.18:649.59
+Eggplant:59.86:632.19
+Sweet potato:40.25:733.09
+Organic tomato:24.92:530.33
+Honey jar:12.25:387.59
+Sweet potato:60.82:343.38
+Balsamic vinegar:15.48:596.02
+Brown eggs:22.29:389.79
+Vegan pizza:55.5:765.67
+Honey jar:26.87:434.11
+Stuffed mushrooms:38.86:539.71
+Mint leaves:32.93:304.13
+Cottage cheese:47.48:648.76
+Mango slices:50.63:446.73
+Raspberries:55.85:743.02
+Pesto with basil:67.45:744.41
+Eggplant:14.64:434.26
+Pecan nuts:37.09:780.61
+Almond milk:21.28:611.17
+Canned tomatos:36.51:731.24
+Olive oil:27.81:408.7
+Raw legumes:65.87:615.99
+Mango slices:60.15:647.4
+Pears juice:35.11:522.07
+Sweet fresh strawberry:13.15:301.77
+Homemade bread:52.29:748.86
+Pesto with basil:53.46:413.98
+Blueberries:58.72:511.7
+Cranberries:15.51:781.35
+Eggplant:49.0:349.82
+Honey jar:44.4:598.04
+Baking cake:41.86:551.36
+Maple syrup:15.43:501.03
+Sea salt:15.69:564.94
+Dark chocolate:35.01:696.1
+Maple syrup:24.49:317.52
+Legumes:12.94:552.28
+Pumpkin:40.33:368.78
+Pesto with basil:57.91:713.9
+Brown eggs:43.01:391.9
+Legumes:49.06:321.98
+Mango slices:16.3:780.45
+Fresh strawberry:66.84:790.88
+Canned tomatos:63.3:600.21
+Pears juice:39.85:761.39
+Hazelnut bowl:18.76:657.97
+Hazelnut bowl:13.23:724.09
+Hazelnut bowl:57.22:700.31
+Lemon and salt:49.08:627.29
+Greek yogurt:68.07:603.48
+Curry spice:19.44:307.02
+Brown eggs:66.05:405.92
+Organic tomato:57.12:510.66
+Curry spice:43.25:470.68
+Asparagus:50.1:621.99
+Pineapple chunks:30.7:314.36
+Fresh pears:28.29:678.45
+Cherries:34.74:528.88
+Blueberries:35.47:487.69
+Baking cake:30.92:312.34
+Greek yogurt:27.6:358.75
+Strawberry jelly:56.55:331.02
+Pineapple chunks:50.26:760.27
+Stuffed mushrooms:13.09:515.91
+Orange juice:44.19:795.09
+Brown eggs:67.52:758.36
+Lemon and salt:37.97:619.34
+Blackberries:20.59:451.0
+Baking cake:54.69:510.0
+Pineapple chunks:41.25:776.21
+Cranberries:66.59:529.58
+Healthy breakfast:10.53:329.66
+Mango slices:40.43:570.11
+Banana bread:50.61:419.69
+Maple syrup:69.02:799.82
+Healthy breakfast:51.07:442.13
+Coconut oil:33.55:516.4
+Baking cake:38.43:662.98
+Banana bread:64.4:333.21
+Fresh tomato:63.96:769.17
+Healthy breakfast:11.45:784.1
+Asparagus:59.99:345.18
+Cottage cheese:29.49:480.35
+Healthy breakfast:52.39:621.22
+Healthy breakfast:58.71:715.11
+Dark chocolate:37.57:436.5
+Fresh strawberry:33.9:326.7
+Blueberries:10.55:511.5
+Cottage cheese:36.42:720.9
+Pineapple chunks:55.66:509.9
+Blueberries:33.72:356.13
+Dark chocolate:39.5:722.11
+Avocado toast:20.25:315.09
+Banana bread:10.05:376.12
+Sea salt:66.98:730.63
+Fresh pears:42.51:548.83
+Blueberries:45.76:684.88
+Mango slices:58.5:784.91
+Cottage cheese:21.84:606.05
+Orange juice:60.22:522.33
+Maple syrup:58.93:349.52
+Canned tomatos:69.11:358.92
+Green beans:60.65:336.77
+Asparagus:68.92:791.36
+Fresh pears:51.19:745.68
+Curry spice:45.55:443.15
+Mango slices:52.25:469.93
+Fresh pears:63.58:618.68
+Organic tomato:59.02:464.72
+Olive oil:44.25:414.61
+Stuffed mushrooms:42.33:467.87
+Hazelnut bowl:42.8:542.01
+Fresh tomato:32.44:417.96
+Chicken eggs:59.95:376.81
+Raw legumes:62.55:624.6
+Healthy breakfast:52.07:506.57
+Balsamic vinegar:38.08:778.88
+Greek yogurt:59.93:301.17
+Maple syrup:38.72:580.0
+Cinnamon:23.63:437.37
+Pineapple chunks:67.29:513.8
+Green smoothie:11.46:525.15
+Coconut oil:34.81:690.7
+Stuffed mushrooms:12.51:388.49
+Fresh pears:38.66:457.17
+Baking cake:38.37:733.9
+Olive oil:43.04:437.31
