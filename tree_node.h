@@ -20,7 +20,7 @@ public:
     bool included;          // Whether this node represents an inclusion decision
     
     TreeNode() {
-        item.name = nullptr;
+        item.id = 0;
         item.value = 0.0f;
         item.weight = 0.0f;
         t_weight = 0.0f;

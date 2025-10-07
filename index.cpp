@@ -13,15 +13,18 @@
 #include "branch_and_bound.h"
 
 int main() {
-    // Load items from input file
+    // Load items and capacity from input file
     int item_count = 0;
-    Item* items = read_items("data/slow.txt", &item_count);
+    float capacity = 0.0f;
+    Item* items = read_items("data/test_hard.txt", &item_count, &capacity);
+    
+    if (items == nullptr) {
+        printf("Error: Failed to load items from file.\n");
+        return 1;
+    }
     
     printf("Loaded %d items from data file.\n", item_count);
-    
-    // Define knapsack capacity constraint
-    float capacity = 5000.0f;
-    printf("\nKnapsack capacity: %.2f\n", capacity);
+    printf("Knapsack capacity: %.2f\n\n", capacity);
     
     // Initialize solution variables
     float max_value = 0.0f;
@@ -40,8 +43,8 @@ int main() {
     
     float total_weight = 0.0f;
     for (int i = 0; i < best_count; i++) {
-        printf("  %s (value: %.2f, weight: %.2f)\n", 
-               best_items[i].name, best_items[i].value, best_items[i].weight);
+        printf("  Item %d (value: %.2f, weight: %.2f)\n", 
+               best_items[i].id, best_items[i].value, best_items[i].weight);
         total_weight += best_items[i].weight;
     }
     

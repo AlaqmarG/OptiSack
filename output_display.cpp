@@ -8,8 +8,8 @@
 void print_sorted_items(Item* items, int n) {
     printf("\nSorted items by value/weight ratio:\n");
     for (int i = 0; i < n; i++) {
-        printf("%d. %s: value=%.2f, weight=%.2f, ratio=%.4f\n", 
-               i+1, items[i].name, items[i].value, items[i].weight, 
+        printf("%d. Item %d: value=%.2f, weight=%.2f, ratio=%.4f\n", 
+               i+1, items[i].id, items[i].value, items[i].weight, 
                items[i].value / items[i].weight);
     }
 }

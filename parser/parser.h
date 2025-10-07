@@ -2,11 +2,11 @@
 #define DATATYPES_H
 
 typedef struct {
-    char *name;
+    int id;
     float value;
     float weight;
 } Item;
 
-Item* read_items(const char* filename, int* count);
+Item* read_items(const char* filename, int* count, float* capacity);
 
 #endif
