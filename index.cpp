@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "parser/parser.h"
 #include "branch_and_bound.h"
+#include "test_config.h"
 
 int main() {
     // Load items and capacity from input file
@@ -23,6 +24,7 @@ int main() {
         return 1;
     }
     
+    printf("Test file: %s\n", TEST_FILE);
     printf("Loaded %d items from data file.\n", item_count);
     printf("Knapsack capacity: %.2f\n\n", capacity);
     
