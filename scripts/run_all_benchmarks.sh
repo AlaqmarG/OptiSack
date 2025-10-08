@@ -5,15 +5,18 @@ echo "Running Sequential Benchmarks on All Datasets"
 echo "======================================================================"
 echo ""
 
-# Array of datasets: "filename:capacity:description"
+# Array of datasets: "filename:description"
 datasets=(
-    "baseline.txt:1466.58:Baseline (15 items, quick test)"
-    "test_38_items.txt:3464.50:Main benchmark (38 items, ~40s)"
-    "slow.txt:5000.0:Original slow dataset (200 items)"
+    "benchmark_fast_85items.txt:Fast (85 items)"
+    "benchmark_medium_100items.txt:Medium (100 items)"
+    "benchmark_medium_hard_112items.txt:Medium-Hard (112 items)"
+    "benchmark_very_hard_110items.txt:Very Hard (110 items)"
+    "benchmark_extreme_121items.txt:Extreme (121 items)"
+    "benchmark_ultimate_121items.txt:Ultimate (121 items)"
 )
 
 for dataset in "${datasets[@]}"; do
-    IFS=':' read -r file cap desc <<< "$dataset"
+    IFS=':' read -r file desc <<< "$dataset"
     
     echo "======================================================================"
     echo "Testing: $desc"
@@ -21,21 +24,25 @@ for dataset in "${datasets[@]}"; do
     echo "======================================================================"
     
     # Create test_config.h for this dataset
-    cat > test_config.h << EOF
+    cat > include/test_config.h << EOF
 #ifndef TEST_CONFIG_H
 #define TEST_CONFIG_H
 #define TEST_FILE "data/$file"
-#define CAPACITY ${cap}f
 #endif
 EOF
     
     # Compile
-    g++ -std=c++11 benchmark_sequential.cpp branch_and_bound.cpp \
-        knapsack_utils.cpp output_display.cpp parser/parser.cpp \
-        -o benchmark_seq 2>/dev/null
+    mkdir -p out
+    g++ -std=c++11 -Iinclude \
+        src/benchmark_sequential.cpp \
+        src/branch_and_bound.cpp \
+        src/knapsack_utils.cpp \
+        src/output_display.cpp \
+        src/parser/parser.cpp \
+        -o out/benchmark_seq 2>/dev/null
     
     # Run and show only results
-    ./benchmark_seq 2>&1 | grep -A 20 "^====.*RESULTS"
+    ./out/benchmark_seq 2>&1 | grep -A 20 "^====.*RESULTS"
     
     echo ""
     echo ""

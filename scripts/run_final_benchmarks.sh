@@ -31,7 +31,7 @@ for dataset_info in "${datasets[@]}"; do
     echo "======================================================================"
     
     # Update test_config.h to point to this dataset
-    cat > test_config.h << EOF
+    cat > include/test_config.h << EOF
 #ifndef TEST_CONFIG_H
 #define TEST_CONFIG_H
 #define TEST_FILE "$dataset_file"
@@ -39,9 +39,14 @@ for dataset_info in "${datasets[@]}"; do
 EOF
     
     # Compile benchmark
-    g++ -std=c++11 benchmark_sequential.cpp branch_and_bound.cpp \
-        knapsack_utils.cpp output_display.cpp parser/parser.cpp \
-        -o benchmark_seq 2>/dev/null
+    mkdir -p out
+    g++ -std=c++11 -Iinclude \
+        src/benchmark_sequential.cpp \
+        src/branch_and_bound.cpp \
+        src/knapsack_utils.cpp \
+        src/output_display.cpp \
+        src/parser/parser.cpp \
+        -o out/benchmark_seq 2>/dev/null
     
     if [ $? -ne 0 ]; then
         echo "Build failed!"
@@ -49,22 +54,22 @@ EOF
     fi
     
     # Run benchmark
-    ./benchmark_seq > temp_benchmark_output.txt 2>&1
+    ./out/benchmark_seq > out/temp_benchmark_output.txt 2>&1
     
     # Extract results
-    avg_time=$(grep "Average time per run:" temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
-    total_time=$(grep "Total time.*runs" temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
-    optimal=$(grep "Optimal value:" temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
-    items=$(grep "Loaded.*items" temp_benchmark_output.txt | grep -o "[0-9]*" | head -1)
+    avg_time=$(grep "Average time per run:" out/temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
+    total_time=$(grep "Total time.*runs" out/temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
+    optimal=$(grep "Optimal value:" out/temp_benchmark_output.txt | grep -o "[0-9.]*" | head -1)
+    items=$(grep "Loaded.*items" out/temp_benchmark_output.txt | grep -o "[0-9]*" | head -1)
     
     # Show summary
-    cat temp_benchmark_output.txt | grep -A 10 "^====.*RESULTS"
+    cat out/temp_benchmark_output.txt | grep -A 10 "^====.*RESULTS"
     
     echo ""
     echo ""
 done
 
-rm -f temp_benchmark_output.txt
+rm -f out/temp_benchmark_output.txt
 
 echo "======================================================================"
 echo "All Benchmarks Complete!"
@@ -72,4 +77,3 @@ echo "======================================================================"
 echo ""
 echo "Results summary:"
 cat $RESULTS_FILE | column -t -s ','
-
