@@ -7,7 +7,7 @@ g++ -std=c++11 \
     knapsack_utils.cpp \
     output_display.cpp \
     parser/parser.cpp \
-    -o benchmark_seq
+    -o out/benchmark_seq
 
 if [ $? -eq 0 ]; then
     echo "✓ Build successful!"
