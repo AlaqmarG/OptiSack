@@ -17,7 +17,7 @@ int main() {
     // Load items and capacity from input file
     int item_count = 0;
     float capacity = 0.0f;
-    Item* items = read_items("data/test_hard.txt", &item_count, &capacity);
+    Item* items = read_items(TEST_FILE, &item_count, &capacity);
     
     if (items == nullptr) {
         printf("Error: Failed to load items from file.\n");

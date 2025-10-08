@@ -16,13 +16,14 @@ int main() {
     printf("Sequential Branch and Bound Benchmark\n");
     printf("======================================\n");
     printf("Dataset: %s\n", TEST_FILE);
-    printf("Capacity: %.2f\n", CAPACITY);
     printf("Iterations: %d\n\n", ITERATIONS);
     
     // Load items once
     int item_count = 0;
-    Item* items = read_items(TEST_FILE, &item_count);
-    printf("Loaded %d items\n\n", item_count);
+    float capacity = 0.0f;
+    Item* items = read_items(TEST_FILE, &item_count, &capacity);
+    printf("Loaded %d items\n", item_count);
+    printf("Capacity: %.2f\n\n", capacity);
     
     double total_time = 0.0;
     float final_max_value = 0.0f;
@@ -44,7 +45,7 @@ int main() {
         auto start = std::chrono::high_resolution_clock::now();
         
         TreeNode* solution_tree = branch_and_bound(
-            items_copy, item_count, CAPACITY, 
+            items_copy, item_count, capacity, 
             &max_value, &best_items, &best_count
         );
         
