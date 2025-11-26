@@ -46,12 +46,12 @@ fi
 echo "Using compiler: $COMPILER"
 echo "OpenMP flags: $OPENMP_FLAGS"
 
-$COMPILER -std=c++11 -Iinclude -I../sequential/include $OPENMP_FLAGS \
+$COMPILER -std=c++11 -I../include -Iinclude $OPENMP_FLAGS \
     src/index.cpp \
     src/branch_and_bound_parallel.cpp \
-    src/knapsack_utils.cpp \
-    src/output_display.cpp \
-    src/parser/parser.cpp \
+    ../src/knapsack_utils.cpp \
+    ../src/output_display.cpp \
+    ../src/parser/parser.cpp \
     -o out/index
 
 if [ $? -eq 0 ]; then
