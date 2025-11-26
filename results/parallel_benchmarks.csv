@@ -1,0 +1,7 @@
+dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value
+benchmark_fast_85items.txt,openmp,8,5,0.157569,0.0315138,2005.43
+benchmark_medium_100items.txt,openmp,8,5,0.0133147,0.00266294,2707.77
+benchmark_medium_hard_112items.txt,openmp,8,5,0.0267092,0.00534183,2736.53
+benchmark_very_hard_110items.txt,openmp,8,5,0.0147664,0.00295328,2737.34
+benchmark_extreme_121items.txt,openmp,8,5,0.0673181,0.0134636,2913.48
+benchmark_ultimate_121items.txt,openmp,8,5,0.44944,0.089888,3041.84
