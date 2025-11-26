@@ -2,11 +2,13 @@
 
 /**
  * Comparator to sort items by value-to-weight ratio in descending order.
- * This greedy heuristic ensures items with better efficiency are considered first,
- * improving bound calculations and pruning effectiveness.
+ * When ratios are equal, sort by value descending for better bound quality.
  */
 bool compare_items(const Item& a, const Item& b) {
-    return (a.value / a.weight) > (b.value / b.weight);
+    float ra = a.value / a.weight;
+    float rb = b.value / b.weight;
+    if (ra != rb) return ra > rb;
+    return a.value > b.value;
 }
 
 /**
