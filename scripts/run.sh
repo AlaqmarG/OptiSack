@@ -7,9 +7,9 @@
 #   ./run.sh benchmark_medium_100items.txt openmp 4
 
 if [ $# -lt 2 ]; then
-    echo "Usage: $0 <dataset> <implementation> [num_threads]"
+    echo "Usage: $0 <dataset> <implementation> [workers]"
     echo "Datasets: benchmark_*.txt files in data/"
-    echo "Implementations: sequential, openmp"
+    echo "Implementations: sequential, openmp, openmpi"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ NUM_THREADS="$3"  # Optional third parameter
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# If no thread count specified for OpenMP, detect number of cores
+# If no worker count specified for OpenMP, detect number of cores
 if [ "$IMPL" = "openmp" ] && [ -z "$NUM_THREADS" ]; then
     if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
         NUM_THREADS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
@@ -28,6 +28,15 @@ if [ "$IMPL" = "openmp" ] && [ -z "$NUM_THREADS" ]; then
         NUM_THREADS=$(nproc 2>/dev/null || echo "8")
     fi
     echo "Auto-detected $NUM_THREADS CPU cores for OpenMP"
+fi
+
+if [ "$IMPL" = "openmpi" ] && [ -z "$NUM_THREADS" ]; then
+    if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
+        NUM_THREADS=$(sysctl -n hw.ncpu 2>/dev/null || echo "4")
+    else
+        NUM_THREADS=$(nproc 2>/dev/null || echo "4")
+    fi
+    echo "Auto-detected $NUM_THREADS MPI processes"
 fi
 
 # Default to 4 threads if still not set (for backward compatibility)
@@ -125,9 +134,49 @@ EOF
             exit 1
         fi
         ;;
+    openmpi)
+        cd "$ROOT_DIR"
+        mkdir -p out/openmpi
+
+        if command -v mpic++ &> /dev/null; then
+            MPI_COMPILER="mpic++"
+        elif command -v mpicc &> /dev/null; then
+            MPI_COMPILER="mpicc"
+        else
+            echo "Error: mpic++ (MPI C++ compiler) not found"
+            exit 1
+        fi
+
+        cat > include/openmpi/test_config.h << EOF
+#ifndef TEST_CONFIG_H
+#define TEST_CONFIG_H
+#define TEST_FILE "data/$DATASET"
+#endif
+EOF
+
+        # Compile OpenMPI version
+        $MPI_COMPILER -std=c++11 -Iinclude/common -Iinclude/openmpi \
+            src/openmpi/index.cpp \
+            src/openmpi/branch_and_bound_mpi.cpp \
+            src/common/knapsack_utils.cpp \
+            src/common/output_display.cpp \
+            src/common/parser/parser.cpp \
+            -o out/openmpi/index 2>/dev/null
+
+        if [ $? -eq 0 ]; then
+            echo "✓ Build successful!"
+            echo ""
+            echo "Running OpenMPI version with $NUM_THREADS processes..."
+            echo ""
+            mpirun -np "$NUM_THREADS" ./out/openmpi/index
+        else
+            echo "✗ Build failed!"
+            exit 1
+        fi
+        ;;
     *)
         echo "Unknown implementation: $IMPL"
-        echo "Available: sequential, openmp"
+        echo "Available: sequential, openmp, openmpi"
         exit 1
         ;;
 esac

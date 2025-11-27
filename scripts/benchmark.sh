@@ -9,7 +9,7 @@
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 [implementations...]"
-    echo "Available implementations: sequential, openmp"
+    echo "Available implementations: sequential, openmp, openmpi"
     exit 1
 fi
 
@@ -83,8 +83,8 @@ EOF
             mkdir -p out/openmp results
             
             # Clear previous results and write header
-            > results/parallel_benchmarks.csv
-            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value" > results/parallel_benchmarks.csv
+            > results/openmp_benchmarks.csv
+            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value" > results/openmp_benchmarks.csv
             
             # Detect number of CPU cores
             if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
@@ -155,9 +155,76 @@ EOF
                 echo ""
             done
             ;;
+        openmpi)
+            echo "======================================================================"
+            echo "Running OpenMPI Benchmarks on All Datasets"
+            echo "======================================================================"
+            echo ""
+
+            cd "$ROOT_DIR"
+            mkdir -p out/openmpi results
+
+            > results/openmpi_benchmarks.csv
+            echo "dataset,implementation,processes,iterations,total_time_sec,avg_time_sec,optimal_value" > results/openmpi_benchmarks.csv
+
+            if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
+                NUM_PROCS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
+            else
+                NUM_PROCS=$(nproc 2>/dev/null || echo "8")
+            fi
+
+            if command -v mpic++ &> /dev/null; then
+                MPI_COMPILER="mpic++"
+            elif command -v mpicc &> /dev/null; then
+                MPI_COMPILER="mpicc"
+            else
+                echo "Error: mpic++ (MPI C++ compiler) not found"
+                exit 1
+            fi
+
+            echo "Using $NUM_PROCS MPI processes for benchmarks"
+            echo ""
+
+            for dataset in "${datasets[@]}"; do
+                IFS=':' read -r file desc <<< "$dataset"
+
+                echo "======================================================================"
+                echo "Testing: $desc"
+                echo "File: data/$file"
+                echo "======================================================================"
+
+                cat > include/openmpi/test_config.h << EOF
+#ifndef TEST_CONFIG_H
+#define TEST_CONFIG_H
+#define TEST_FILE "data/$file"
+#endif
+EOF
+
+                # Detect OpenMP flags
+                if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
+                    LIBOMP_PREFIX=$(brew --prefix libomp 2>/dev/null || echo "/opt/homebrew/opt/libomp")
+                    OPENMP_FLAGS="-Xpreprocessor -fopenmp -I${LIBOMP_PREFIX}/include -L${LIBOMP_PREFIX}/lib -lomp"
+                else
+                    OPENMP_FLAGS="-fopenmp"
+                fi
+
+                $MPI_COMPILER -std=c++11 -Iinclude/common -Iinclude/openmpi \
+                    src/openmpi/benchmark_mpi.cpp \
+                    src/openmpi/branch_and_bound_mpi.cpp \
+                    src/common/knapsack_utils.cpp \
+                    src/common/output_display.cpp \
+                    src/common/parser/parser.cpp \
+                    -o out/openmpi/benchmark_mpi 2>/dev/null
+
+                mpirun -np "$NUM_PROCS" ./out/openmpi/benchmark_mpi 2>&1 | grep -A 20 "RESULTS"
+
+                echo ""
+                echo ""
+            done
+            ;;
         *)
             echo "Unknown implementation: $impl"
-            echo "Available: sequential, openmp"
+            echo "Available: sequential, openmp, openmpi"
             exit 1
             ;;
     esac

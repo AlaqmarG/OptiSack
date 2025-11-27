@@ -1,0 +1,17 @@
+# Build outputs
+out/
+
+# macOS
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Benchmark results (optional - uncomment if you don't want to track results)
+# results/*.csv

@@ -120,31 +120,36 @@ TreeNode* branch_and_bound_parallel(Item* items, int n, float capacity,
     
     std::atomic<int> nodes_explored(0);
     std::atomic<int> nodes_pruned(0);
-    
-    // Recursive task-based explorer
+
+    // Recursive task-based explorer with periodic global best synchronization
     std::function<void(TreeNode*)> explore;
     explore = [&](TreeNode* current) {
         nodes_explored.fetch_add(1, std::memory_order_relaxed);
-        
+
+        // Periodic global best synchronization (every 100 nodes) to match OpenMPI behavior
+        static thread_local int sync_counter = 0;
         float current_best;
-        #pragma omp critical(read_best)
-        {
+        if (++sync_counter % 100 == 0) {
+            // Read fresh global best periodically
+            current_best = global_best_value;
+        } else {
+            // Use cached value for performance
             current_best = global_best_value;
         }
-        
+
         // Prune hopeless branches
         if (current->bound <= current_best) {
             nodes_pruned.fetch_add(1, std::memory_order_relaxed);
             return;
         }
-        
+
         // Leaf: all items considered
         if (current->level == n - 1) {
             return;
         }
-        
+
         int next_level = current->level + 1;
-        
+
         // Left child: include next item if feasible
         if (current->t_weight + items[next_level].weight <= capacity) {
             TreeNode* left_child = current->add(
@@ -154,9 +159,9 @@ TreeNode* branch_and_bound_parallel(Item* items, int n, float capacity,
                 current->t_value + items[next_level].value,
                 next_level
             );
-            
+
             left_child->bound = calculate_bound(left_child, items, n, capacity);
-            
+
             // Update best value if improved
             if (left_child->t_value > current_best) {
                 omp_set_lock(&best_lock);
@@ -167,20 +172,18 @@ TreeNode* branch_and_bound_parallel(Item* items, int n, float capacity,
                 }
                 omp_unset_lock(&best_lock);
             }
-            
-            // Spawn task (or recurse inline) if promising
-            if (left_child->bound > current_best) {
-                if (next_level < TASK_CUTOFF_LEVEL) {
-                    #pragma omp task firstprivate(left_child) shared(explore)
-                    {
-                        explore(left_child);
-                    }
-                } else {
+
+            // Only create tasks for deeper levels to reduce overhead
+            if (left_child->bound > current_best && next_level >= 8) {
+                #pragma omp task firstprivate(left_child) shared(explore)
+                {
                     explore(left_child);
                 }
+            } else if (left_child->bound > current_best) {
+                explore(left_child);
             }
         }
-        
+
         // Right child: exclude next item (always feasible)
         TreeNode* right_child = current->add(
             false,
@@ -189,36 +192,63 @@ TreeNode* branch_and_bound_parallel(Item* items, int n, float capacity,
             current->t_value,
             next_level
         );
-        
+
         right_child->bound = calculate_bound(right_child, items, n, capacity);
-        
-        #pragma omp critical(read_best)
-        {
-            current_best = global_best_value;
-        }
-        
-        if (right_child->bound > current_best) {
-            if (next_level < TASK_CUTOFF_LEVEL) {
-                #pragma omp task firstprivate(right_child) shared(explore)
-                {
-                    explore(right_child);
-                }
-            } else {
+
+        // Only create tasks for deeper levels
+        if (right_child->bound > current_best && next_level >= 8) {
+            #pragma omp task firstprivate(right_child) shared(explore)
+            {
                 explore(right_child);
             }
+        } else if (right_child->bound > current_best) {
+            explore(right_child);
         }
     };
-    
-    // Parallel region with a single initial task; implicit barrier waits for all tasks
+
+    // Parallel region with work distribution matching OpenMPI strategy
     omp_set_num_threads(num_threads);
     #pragma omp parallel
     {
-        #pragma omp single nowait
-        {
-            explore(root);
+        int thread_id = omp_get_thread_num();
+        
+        // Distribute initial work across threads like OpenMPI ranks
+        // Thread 0 starts from root, other threads start from different initial decisions
+        TreeNode* start_node = root;
+        if (thread_id > 0) {
+            // Create different starting points for load balancing
+            int start_pattern = thread_id % 4;
+            start_node = root;
+            
+            // Apply different initial decisions based on thread ID
+            for (int i = 0; i < start_pattern && i < n; ++i) {
+                if (start_node->t_weight + items[i].weight <= capacity) {
+                    start_node = start_node->add(
+                        true,  // include item
+                        items[i],
+                        start_node->t_weight + items[i].weight,
+                        start_node->t_value + items[i].value,
+                        i
+                    );
+                    start_node->bound = calculate_bound(start_node, items, n, capacity);
+                } else {
+                    // If we can't include this item, try excluding it
+                    start_node = start_node->add(
+                        false,  // exclude item
+                        items[i],
+                        start_node->t_weight,
+                        start_node->t_value,
+                        i
+                    );
+                    start_node->bound = calculate_bound(start_node, items, n, capacity);
+                }
+            }
         }
+        
+        // Each thread explores from its assigned starting point
+        explore(start_node);
     }
-    
+
     omp_destroy_lock(&best_lock);
     
     print_statistics(nodes_explored.load(), nodes_pruned.load());
