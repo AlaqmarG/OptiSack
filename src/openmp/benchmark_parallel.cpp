@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
     printf("=============================================\n");
     
     // Write results to CSV
-    std::string csv_file = "results/parallel_benchmarks.csv";
+    std::string csv_file = "results/openmp_benchmarks.csv";
     
     std::ofstream csv(csv_file, std::ios::app);
     if (!csv.is_open()) {
