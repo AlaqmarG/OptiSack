@@ -1,7 +1,7 @@
 dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value
-benchmark_fast_85items.txt,openmp,8,5,0.348147,0.0696295,2005.43
-benchmark_medium_100items.txt,openmp,8,5,0.0139469,0.00278938,2707.77
-benchmark_medium_hard_112items.txt,openmp,8,5,0.0235658,0.00471317,2736.53
-benchmark_very_hard_110items.txt,openmp,8,5,0.0172121,0.00344242,2737.34
-benchmark_extreme_121items.txt,openmp,8,5,0.0327359,0.00654718,2913.48
-benchmark_ultimate_121items.txt,openmp,8,5,0.291585,0.0583171,3041.84
+benchmark_fast_85items.txt,openmp,8,5,0.00604646,0.00120929,2005.43
+benchmark_medium_100items.txt,openmp,8,5,0.00796296,0.00159259,2707.77
+benchmark_medium_hard_112items.txt,openmp,8,5,0.0114166,0.00228332,2736.53
+benchmark_very_hard_110items.txt,openmp,8,5,0.0136328,0.00272655,2737.34
+benchmark_extreme_121items.txt,openmp,8,5,0.0178523,0.00357047,2913.48
+benchmark_ultimate_121items.txt,openmp,8,5,0.0187178,0.00374357,3041.84
