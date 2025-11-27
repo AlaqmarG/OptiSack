@@ -19,7 +19,8 @@ struct CompareNode {
 void reconstruct_solution(TreeNode* root, TreeNode* best_node, 
                          Item** best_items, int* best_count);
 
-// Main Parallel Branch and Bound algorithm for 0/1 Knapsack
+// OpenMP Parallel Branch and Bound algorithm for 0/1 Knapsack
+// Uses task-based parallelism for efficient load distribution
 TreeNode* branch_and_bound_parallel(Item* items, int n, float capacity, 
                                    float* max_value, Item** best_items, 
                                    int* best_count, int num_threads);
