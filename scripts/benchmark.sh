@@ -168,9 +168,9 @@ EOF
             echo "dataset,implementation,processes,iterations,total_time_sec,avg_time_sec,optimal_value" > results/openmpi_benchmarks.csv
 
             if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
-                NUM_PROCS=1  # OpenMPI implementation uses OpenMP on rank 0 only
+                NUM_PROCS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
             else
-                NUM_PROCS=1  # OpenMPI implementation uses OpenMP on rank 0 only
+                NUM_PROCS=$(nproc 2>/dev/null || echo "8")
             fi
 
             if command -v mpic++ &> /dev/null; then
