@@ -1,7 +1,7 @@
 dataset,implementation,processes,iterations,total_time_sec,avg_time_sec,optimal_value
-data/benchmark_fast_85items.txt,openmpi,8,5,0.004685,0.000937,2005.43
-data/benchmark_medium_100items.txt,openmpi,8,5,0.010186,0.0020372,2707.77
-data/benchmark_medium_hard_112items.txt,openmpi,8,5,0.013052,0.0026104,2736.53
-data/benchmark_very_hard_110items.txt,openmpi,8,5,0.033937,0.0067874,2737.34
-data/benchmark_extreme_121items.txt,openmpi,8,5,0.065514,0.0131028,2913.48
-data/benchmark_ultimate_121items.txt,openmpi,8,5,0.01565,0.00313,3041.84
+data/benchmark_fast_85items.txt,openmpi,8,5,0.006264,0.0012528,2005.43
+data/benchmark_medium_100items.txt,openmpi,8,5,0.005575,0.001115,2707.77
+data/benchmark_medium_hard_112items.txt,openmpi,8,5,0.008825,0.001765,2736.53
+data/benchmark_very_hard_110items.txt,openmpi,8,5,0.03106,0.006212,2737.34
+data/benchmark_extreme_121items.txt,openmpi,8,5,0.060034,0.0120068,2913.48
+data/benchmark_ultimate_121items.txt,openmpi,8,5,0.017522,0.0035044,3041.84
