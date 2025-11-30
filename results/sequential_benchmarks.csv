@@ -1,7 +1,8 @@
-dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value
-benchmark_fast_85items.txt,sequential,1,5,3.66594,0.733188,2005.43
-benchmark_medium_100items.txt,sequential,1,5,1.13483,0.226967,2707.77
-benchmark_medium_hard_112items.txt,sequential,1,5,71.9072,14.3814,2736.53
-benchmark_very_hard_110items.txt,sequential,1,5,8.35046,1.67009,2737.34
-benchmark_extreme_121items.txt,sequential,1,5,3.55574,0.711147,2913.48
-benchmark_ultimate_121items.txt,sequential,1,5,10.8824,2.17648,3041.84
+dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,nodes_explored,nodes_pruned,optimal_value
+85.txt,sequential,1,10,1.2142,0.12142,2786900,1325130,2061.12
+100.txt,sequential,1,10,1.57745,0.157745,3414180,1338410,2424.1
+112.txt,sequential,1,10,1.29091,0.129091,2666850,1319600,2738.21
+110.txt,sequential,1,10,0.79712,0.079712,1767550,815290,2696.6
+121.txt,sequential,1,10,51.7919,5.17919,86447740,41949260,2957.83
+130_subset_sum.txt,sequential,1,10,28.5674,2.85674,48455720,20651320,2989.61
+140_subset_sum.txt,sequential,1,10,14.3522,1.43522,24959530,11642730,3259.36

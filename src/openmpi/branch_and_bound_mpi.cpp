@@ -15,6 +15,7 @@
 #include "knapsack_utils.h"
 #include "output_display.h"
 #include "tree_node.h"
+#include "branch_and_bound.h"  // For CompareNode comparator
 
 namespace {
 
@@ -86,32 +87,31 @@ void branch_and_bound_mpi(Item* items,
         print_sorted_items(items, item_count);
     }
 
-    // Use parallel branch and bound across MPI ranks
-    const int TASK_CUTOFF_LEVEL = 12;
+float local_best_value = 0.0f;
+TreeNode* best_node = nullptr;
+TreeNode* best_root = nullptr;
+std::atomic<long long> local_nodes_explored(0);
+std::atomic<long long> local_nodes_pruned(0);
 
-    float local_best_value = 0.0f;
-    TreeNode* root = new TreeNode();
-    root->level = -1;
-    root->t_value = 0.0f;
-    root->t_weight = 0.0f;
-    root->bound = calculate_bound(root, items, item_count, capacity);
+// Helper: best-first search using a local priority queue on this rank,
+// starting from the given node within the provided tree root.
+auto explore_with_pq = [&](TreeNode* root, TreeNode* start_node) {
+    std::priority_queue<TreeNode*, std::vector<TreeNode*>, CompareNode> pq;
+    pq.push(start_node);
 
-    TreeNode* best_node = root;
-    std::atomic<long long> local_nodes_explored(0);
-    std::atomic<long long> local_nodes_pruned(0);
+    while (!pq.empty()) {
+        TreeNode* current = pq.top();
+        pq.pop();
 
-    // Each rank explores a portion of the search space
-    std::function<void(TreeNode*)> explore;
-    explore = [&](TreeNode* current) {
         local_nodes_explored.fetch_add(1, std::memory_order_relaxed);
 
         if (current->bound <= local_best_value) {
             local_nodes_pruned.fetch_add(1, std::memory_order_relaxed);
-            return;
+            continue;
         }
 
         if (current->level == item_count - 1) {
-            return;
+            continue;
         }
 
         int next_level = current->level + 1;
@@ -130,10 +130,11 @@ void branch_and_bound_mpi(Item* items,
             if (left_child->t_value > local_best_value) {
                 local_best_value = left_child->t_value;
                 best_node = left_child;
+                best_root = root;
             }
 
             if (left_child->bound > local_best_value) {
-                explore(left_child);
+                pq.push(left_child);
             }
         }
 
@@ -147,35 +148,90 @@ void branch_and_bound_mpi(Item* items,
         right_child->bound = calculate_bound(right_child, items, item_count, capacity);
 
         if (right_child->bound > local_best_value) {
-            explore(right_child);
+            pq.push(right_child);
         }
-    };
+    }
+};
 
-    // Divide initial work across ranks by starting from different root decisions
-    // This is a simple load balancing approach for demonstration
-    if (world_rank == 0) {
-        // Rank 0 starts with root (explores all possibilities)
-        explore(root);
-    } else {
-        // Other ranks start with partial solutions to distribute work
-        // This is a simplified approach - in practice, you'd want better load balancing
-        int start_decisions = world_rank % 4;  // Simple distribution
+    // Partition the search tree across ranks using fixed decision prefixes.
+    // We take the first prefix_bits items and assign each of the 2^prefix_bits
+    // include/exclude patterns round-robin to MPI ranks.
+    // Using a small prefix (2) limits duplicate work and keeps pruning effective.
+    int prefix_bits = std::min(2, item_count);  // up to 4 disjoint prefixes
+    int total_patterns = 1 << prefix_bits;
 
-        TreeNode* start_node = root;
-        for (int i = 0; i < start_decisions && i < item_count; ++i) {
-            if (start_node->t_weight + items[i].weight <= capacity) {
-                start_node = start_node->add(
-                    true, items[i],
-                    start_node->t_weight + items[i].weight,
-                    start_node->t_value + items[i].value,
-                    i
-                );
+    for (int pattern = 0; pattern < total_patterns; ++pattern) {
+        if (pattern % world_size != world_rank) {
+            // This rank skips patterns assigned to other ranks, but still
+            // participates in the global best-value synchronization below.
+            // (local_best_value remains whatever it was from previous work.)
+        } else {
+
+            // Fresh tree for this pattern
+            TreeNode* root = new TreeNode();
+            root->level = -1;
+            root->t_value = 0.0f;
+            root->t_weight = 0.0f;
+            root->bound = calculate_bound(root, items, item_count, capacity);
+
+            TreeNode* start_node = root;
+            bool pruned_prefix = false;
+
+            // Apply prefix decisions according to bits of 'pattern'
+            for (int lvl = 0; lvl < prefix_bits; ++lvl) {
+                int item_index = lvl;
+                bool include = (pattern & (1 << lvl)) != 0;
+
+                if (include && start_node->t_weight + items[item_index].weight <= capacity) {
+                    start_node = start_node->add(
+                        true, items[item_index],
+                        start_node->t_weight + items[item_index].weight,
+                        start_node->t_value + items[item_index].value,
+                        item_index
+                    );
+                } else {
+                    // Either exclude by choice or because including would overflow
+                    start_node = start_node->add(
+                        false, items[item_index],
+                        start_node->t_weight,
+                        start_node->t_value,
+                        item_index
+                    );
+                }
                 start_node->bound = calculate_bound(start_node, items, item_count, capacity);
+
+                if (start_node->bound <= local_best_value) {
+                    // Entire subtree under this prefix cannot beat current best for this rank
+                    pruned_prefix = true;
+                    break;
+                }
+            }
+
+            if (pruned_prefix) {
+                delete root;
             } else {
-                break;
+                double prev_best = local_best_value;
+                explore_with_pq(root, start_node);
+
+                if (local_best_value <= prev_best) {
+                    // This pattern did not improve the local best; discard its tree
+                    delete root;
+                } else {
+                    // Keep only the tree containing the current best solution
+                    // (any previous best_root can be safely deleted now)
+                    if (best_root && best_root != root) {
+                        delete best_root;
+                    }
+                    best_root = root;
+                }
             }
         }
-        explore(start_node);
+
+        // After each pattern, synchronize the best value across ranks so that
+        // later prefixes benefit from better global incumbents and prune more.
+        float synced_best = 0.0f;
+        MPI_Allreduce(&local_best_value, &synced_best, 1, MPI_FLOAT, MPI_MAX, comm);
+        local_best_value = synced_best;
     }
 
     // Find global best across all ranks
@@ -201,8 +257,8 @@ void branch_and_bound_mpi(Item* items,
     std::vector<Item> solution_items;
     int solution_count = 0;
 
-    if (world_rank == winning_rank) {
-        reconstruct_solution(root, best_node, solution_items);
+    if (world_rank == winning_rank && best_root && best_node) {
+        reconstruct_solution(best_root, best_node, solution_items);
         solution_count = solution_items.size();
     }
 

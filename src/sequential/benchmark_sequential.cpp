@@ -13,7 +13,7 @@
 #include "test_config.h"
 
 int main() {
-    const int ITERATIONS = 5;  // Run 5 times for measurements
+    const int ITERATIONS = 10;  // Run 10 times for measurements
     
     printf("Sequential Branch and Bound Benchmark\n");
     printf("======================================\n");
@@ -29,6 +29,8 @@ int main() {
     
     double total_time = 0.0;
     float final_max_value = 0.0f;
+    long long total_nodes_explored = 0;
+    long long total_nodes_pruned = 0;
     
     printf("Running benchmark...\n");
     
@@ -42,20 +44,24 @@ int main() {
         float max_value = 0.0f;
         Item* best_items = nullptr;
         int best_count = 0;
+        int iter_nodes_explored = 0;
+        int iter_nodes_pruned = 0;
         
         // Time this iteration
         auto start = std::chrono::high_resolution_clock::now();
         
         TreeNode* solution_tree = branch_and_bound(
             items_copy, item_count, capacity, 
-            &max_value, &best_items, &best_count
-        );
+            &max_value, &best_items, &best_count,
+            &iter_nodes_explored, &iter_nodes_pruned);
         
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
         
         total_time += elapsed.count();
         final_max_value = max_value;
+        total_nodes_explored += iter_nodes_explored;
+        total_nodes_pruned += iter_nodes_pruned;
         
         // Clean up
         delete solution_tree;
@@ -81,6 +87,8 @@ int main() {
     printf("Average time per run: %.4f seconds (%.2f ms)\n", 
            avg_time, avg_time_ms);
     printf("Optimal value: %.2f\n", final_max_value);
+    printf("Total nodes explored (5 runs): %lld\n", total_nodes_explored);
+    printf("Total nodes pruned (5 runs):   %lld\n", total_nodes_pruned);
     printf("\nFor parallel comparison, use total time of %d iterations:\n", ITERATIONS);
     printf("  Sequential: %.3f s\n", total_time);
     printf("  If parallel takes X seconds, speedup = %.3f / X\n", total_time);
@@ -103,7 +111,9 @@ int main() {
     }
     
     csv << dataset_name << ",sequential,1," << ITERATIONS << ","
-        << total_time << "," << avg_time << "," << final_max_value << "\n";
+        << total_time << "," << avg_time << ","
+        << total_nodes_explored << "," << total_nodes_pruned << ","
+        << final_max_value << "\n";
     
     csv.close();
     printf("Results written to %s\n", csv_file.c_str());
