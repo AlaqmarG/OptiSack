@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    const int ITERATIONS = 5;  // Run 5 times for measurements
+    const int ITERATIONS = 10;  // Run 10 times for measurements
     
     printf("Parallel Branch and Bound Benchmark (OpenMP)\n");
     printf("=============================================\n");
@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
     
     double total_time = 0.0;
     float final_max_value = 0.0f;
+    long long total_nodes_explored = 0;
+    long long total_nodes_pruned = 0;
     
     printf("Running benchmark...\n");
     
@@ -59,20 +61,24 @@ int main(int argc, char* argv[]) {
         float max_value = 0.0f;
         Item* best_items = nullptr;
         int best_count = 0;
+        int iter_nodes_explored = 0;
+        int iter_nodes_pruned = 0;
         
         // Time this iteration
         auto start = std::chrono::high_resolution_clock::now();
         
         TreeNode* solution_tree = branch_and_bound_parallel(
             items_copy, item_count, capacity, 
-            &max_value, &best_items, &best_count, num_threads
-        );
+            &max_value, &best_items, &best_count, num_threads,
+            &iter_nodes_explored, &iter_nodes_pruned);
         
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
         
         total_time += elapsed.count();
         final_max_value = max_value;
+        total_nodes_explored += iter_nodes_explored;
+        total_nodes_pruned += iter_nodes_pruned;
         
         // Clean up
         delete solution_tree;
@@ -98,6 +104,8 @@ int main(int argc, char* argv[]) {
     printf("Average time per run: %.4f seconds (%.2f ms)\n", 
            avg_time, avg_time_ms);
     printf("Optimal value: %.2f\n", final_max_value);
+    printf("Total nodes explored (5 runs): %lld\n", total_nodes_explored);
+    printf("Total nodes pruned (5 runs):   %lld\n", total_nodes_pruned);
     printf("\nFor comparison with sequential version:\n");
     printf("  Parallel (%d threads): %.3f s\n", num_threads, total_time);
     printf("  If sequential takes X seconds, speedup = X / %.3f\n", total_time);
@@ -120,7 +128,9 @@ int main(int argc, char* argv[]) {
     }
     
     csv << dataset_name << ",openmp," << num_threads << "," << ITERATIONS << ","
-        << total_time << "," << avg_time << "," << final_max_value << "\n";
+        << total_time << "," << avg_time << ","
+        << total_nodes_explored << "," << total_nodes_pruned << ","
+        << final_max_value << "\n";
     
     csv.close();
     printf("Results written to %s\n", csv_file.c_str());

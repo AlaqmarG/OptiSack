@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    const int ITERATIONS = 5;
+    const int ITERATIONS = 10;
 
     int item_count = 0;
     float capacity = 0.0f;
@@ -44,6 +44,8 @@ int main(int argc, char* argv[]) {
 
     double total_time = 0.0;
     float final_max_value = 0.0f;
+    long long total_nodes_explored = 0;
+    long long total_nodes_pruned = 0;
 
     for (int iter = 0; iter < ITERATIONS; ++iter) {
         Item* items_copy = new Item[item_count];
@@ -74,6 +76,8 @@ int main(int argc, char* argv[]) {
         if (world_rank == 0) {
             total_time += elapsed;
             final_max_value = max_value;
+            total_nodes_explored += stats.nodes_explored;
+            total_nodes_pruned += stats.nodes_pruned;
             printf("  Completed %d/%d iterations...\n", iter + 1, ITERATIONS);
         }
     }
@@ -86,13 +90,17 @@ int main(int argc, char* argv[]) {
         printf("Total time (%d runs): %.3f seconds (%.1f ms)\n", ITERATIONS, total_time, total_time * 1000.0);
         printf("Average time per run: %.4f seconds (%.2f ms)\n", avg_time, avg_time * 1000.0);
         printf("Optimal value: %.2f\n", final_max_value);
+        printf("Total nodes explored (5 runs): %lld\n", total_nodes_explored);
+        printf("Total nodes pruned (5 runs):   %lld\n", total_nodes_pruned);
         printf("============================================\n");
 
         std::string csv_file = "results/openmpi_benchmarks.csv";
         std::ofstream csv(csv_file, std::ios::app);
         if (csv.is_open()) {
             csv << TEST_FILE << ",openmpi," << world_size << "," << ITERATIONS << ","
-                << total_time << "," << avg_time << "," << final_max_value << "\n";
+                << total_time << "," << avg_time << ","
+                << total_nodes_explored << "," << total_nodes_pruned << ","
+                << final_max_value << "\n";
         } else {
             printf("Warning: Could not open %s for writing\n", csv_file.c_str());
         }

@@ -15,12 +15,13 @@ fi
 
 # Array of datasets: "filename:description"
 datasets=(
-    "benchmark_fast_85items.txt:Fast (85 items)"
-    "benchmark_medium_100items.txt:Medium (100 items)"
-    "benchmark_medium_hard_112items.txt:Medium-Hard (112 items)"
-    "benchmark_very_hard_110items.txt:Very Hard (110 items)"
-    "benchmark_extreme_121items.txt:Extreme (121 items)"
-    "benchmark_ultimate_121items.txt:Ultimate (121 items)"
+    "85.txt:Fast (85 items)"
+    "100.txt:Medium (100 items)"
+    "112.txt:Medium-Hard (112 items)"
+    "110.txt:Very Hard (110 items)"
+    "121.txt:Extreme (121 items)"
+    "130_subset_sum.txt:Subset-sum hard (130 items)"
+    "140_subset_sum.txt:Subset-sum very hard (140 items)"
 )
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,7 +40,7 @@ for impl in "$@"; do
             
             # Clear previous results and write header
             > results/sequential_benchmarks.csv
-            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value" > results/sequential_benchmarks.csv
+            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,nodes_explored,nodes_pruned,optimal_value" > results/sequential_benchmarks.csv
             
             for dataset in "${datasets[@]}"; do
                 IFS=':' read -r file desc <<< "$dataset"
@@ -84,16 +85,30 @@ EOF
             
             # Clear previous results and write header
             > results/openmp_benchmarks.csv
-            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,optimal_value" > results/openmp_benchmarks.csv
+            echo "dataset,implementation,threads,iterations,total_time_sec,avg_time_sec,nodes_explored,nodes_pruned,optimal_value" > results/openmp_benchmarks.csv
             
-            # Detect number of CPU cores
+            # Detect number of (logical) CPU cores
             if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
-                NUM_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
+                MAX_THREADS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
             else
-                NUM_CORES=$(nproc 2>/dev/null || echo "8")
+                MAX_THREADS=$(nproc 2>/dev/null || echo "8")
             fi
-            
-            echo "Using $NUM_CORES CPU cores for parallel benchmarks"
+
+            # Build list of thread counts: 2,4,...,MAX_THREADS (and include MAX_THREADS if it's odd)
+            THREAD_COUNTS=()
+            for ((t=2; t<=MAX_THREADS; t+=2)); do
+                THREAD_COUNTS+=("$t")
+            done
+            if (( MAX_THREADS % 2 == 1 && MAX_THREADS > 1 )); then
+                THREAD_COUNTS+=("$MAX_THREADS")
+            fi
+
+            echo "Detected max threads: $MAX_THREADS"
+            echo -n "Running OpenMP benchmarks with thread counts:"
+            for t in "${THREAD_COUNTS[@]}"; do
+                echo -n " $t"
+            done
+            echo ""
             echo ""
             
             # Detect compiler and set OpenMP flags
@@ -147,10 +162,14 @@ EOF
                     src/common/output_display.cpp \
                     src/common/parser/parser.cpp \
                     -o out/openmp/benchmark_par 2>/dev/null
-                
-                # Run and show only results
-                ./out/openmp/benchmark_par $NUM_CORES 2>&1 | grep -A 20 "RESULTS"
-                
+
+                # Run for each requested thread count and show only results
+                for threads in "${THREAD_COUNTS[@]}"; do
+                    echo ">>> Running with $threads OpenMP threads"
+                    ./out/openmp/benchmark_par "$threads" 2>&1 | grep -A 20 "RESULTS"
+                    echo ""
+                done
+
                 echo ""
                 echo ""
             done
@@ -165,12 +184,21 @@ EOF
             mkdir -p out/openmpi results
 
             > results/openmpi_benchmarks.csv
-            echo "dataset,implementation,processes,iterations,total_time_sec,avg_time_sec,optimal_value" > results/openmpi_benchmarks.csv
+            echo "dataset,implementation,processes,iterations,total_time_sec,avg_time_sec,nodes_explored,nodes_pruned,optimal_value" > results/openmpi_benchmarks.csv
 
             if [[ "$OSTYPE" == "darwin"* ]] || [[ "$(uname)" == "Darwin" ]]; then
-                NUM_PROCS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
+                MAX_PROCS=$(sysctl -n hw.ncpu 2>/dev/null || echo "8")
             else
-                NUM_PROCS=$(nproc 2>/dev/null || echo "8")
+                MAX_PROCS=$(nproc 2>/dev/null || echo "8")
+            fi
+
+            # Build list of process counts: 2,4,...,MAX_PROCS (and include MAX_PROCS if it's odd)
+            PROC_COUNTS=()
+            for ((p=2; p<=MAX_PROCS; p+=2)); do
+                PROC_COUNTS+=("$p")
+            done
+            if (( MAX_PROCS % 2 == 1 && MAX_PROCS > 1 )); then
+                PROC_COUNTS+=("$MAX_PROCS")
             fi
 
             if command -v mpic++ &> /dev/null; then
@@ -182,7 +210,12 @@ EOF
                 exit 1
             fi
 
-            echo "Using $NUM_PROCS MPI processes for benchmarks"
+            echo "Detected max MPI processes: $MAX_PROCS"
+            echo -n "Running OpenMPI benchmarks with process counts:"
+            for p in "${PROC_COUNTS[@]}"; do
+                echo -n " $p"
+            done
+            echo ""
             echo ""
 
             for dataset in "${datasets[@]}"; do
@@ -216,7 +249,12 @@ EOF
                     src/common/parser/parser.cpp \
                     -o out/openmpi/benchmark_mpi 2>/dev/null
 
-                mpirun -np "$NUM_PROCS" ./out/openmpi/benchmark_mpi 2>&1 | grep -A 20 "RESULTS"
+                # Run for each requested process count and show only results
+                for procs in "${PROC_COUNTS[@]}"; do
+                    echo ">>> Running with $procs MPI processes"
+                    mpirun -np "$procs" ./out/openmpi/benchmark_mpi 2>&1 | grep -A 20 "RESULTS"
+                    echo ""
+                done
 
                 echo ""
                 echo ""

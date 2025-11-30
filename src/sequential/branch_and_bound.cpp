@@ -87,7 +87,8 @@ void reconstruct_solution(TreeNode* root, TreeNode* best_node,
  * @return Root of the search tree (for solution reconstruction)
  */
 TreeNode* branch_and_bound(Item* items, int n, float capacity, float* max_value, 
-                          Item** best_items, int* best_count) {
+                          Item** best_items, int* best_count,
+                          int* nodes_explored_out, int* nodes_pruned_out) {
     // Sort items by value/weight ratio (descending)
     // This improves bound quality and pruning effectiveness
     std::sort(items, items + n, compare_items);
@@ -174,6 +175,12 @@ TreeNode* branch_and_bound(Item* items, int n, float capacity, float* max_value,
     }
     
     print_statistics(nodes_explored, nodes_pruned);
+    if (nodes_explored_out) {
+        *nodes_explored_out = nodes_explored;
+    }
+    if (nodes_pruned_out) {
+        *nodes_pruned_out = nodes_pruned;
+    }
     
     // Reconstruct the solution by tracing path from root to best_node
     *best_items = new Item[n];

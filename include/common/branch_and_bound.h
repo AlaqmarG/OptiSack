@@ -19,8 +19,12 @@ void reconstruct_solution(TreeNode* root, TreeNode* best_node,
                          Item** best_items, int* best_count);
 
 // Main Branch and Bound algorithm for 0/1 Knapsack
+// Optional output parameters nodes_explored_out and nodes_pruned_out report
+// how many nodes were visited and pruned during the search.
 TreeNode* branch_and_bound(Item* items, int n, float capacity, 
                           float* max_value, Item** best_items, 
-                          int* best_count);
+                          int* best_count,
+                          int* nodes_explored_out = nullptr,
+                          int* nodes_pruned_out = nullptr);
 
 #endif // BRANCH_AND_BOUND_H
