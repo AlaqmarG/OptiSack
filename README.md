@@ -1,24 +1,34 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:00F5A0,100:00D9F5&height=200&section=header&text=OptiSack&fontSize=70&fontColor=0B0F19&animation=fadeIn&fontAlignY=38&desc=A%20Parallel%20Branch-and-Bound%200%2F1%20Knapsack%20Solver&descAlignY=58&descAlign=50" />
+# OptiSack
 
-**Department of Computer Science, Brock University**
-**COSC 3P93 — Parallel Computing**
+### Parallel Branch-and-Bound 0/1 Knapsack Solver
+Department of Computer Science, Brock University · COSC 3P93 — Parallel Computing
+
+---
+
+## RESULT
+
+# 7990x FASTER
+
+**OpenMPI vs. sequential** on the 112-item medium-hard instance — same provably optimal answer, not an approximation.
+
+<sub>Pulled directly from <code>results/openmpi_benchmarks.csv</code> and <code>results/sequential_benchmarks.csv</code> — full scoreboard below.</sub>
+
+---
 
 <p>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-00F5A0.svg?style=for-the-badge&labelColor=0B0F19" alt="License"></a>
-  <a href="https://en.wikipedia.org/wiki/C%2B%2B11"><img src="https://img.shields.io/badge/C%2B%2B-11-00D9F5.svg?style=for-the-badge&labelColor=0B0F19" alt="C++"></a>
-  <a href="https://www.openmp.org/"><img src="https://img.shields.io/badge/OpenMP-4.5-00F5A0.svg?style=for-the-badge&labelColor=0B0F19" alt="OpenMP"></a>
-  <a href="https://www.open-mpi.org/"><img src="https://img.shields.io/badge/OpenMPI-4.1-00D9F5.svg?style=for-the-badge&labelColor=0B0F19" alt="OpenMPI"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-00F5A0.svg?style=flat-square&labelColor=0B0F19" alt="License"></a>
+  <a href="https://en.wikipedia.org/wiki/C%2B%2B11"><img src="https://img.shields.io/badge/C%2B%2B-11-00D9F5.svg?style=flat-square&labelColor=0B0F19" alt="C++"></a>
+  <a href="https://www.openmp.org/"><img src="https://img.shields.io/badge/OpenMP-4.5-00F5A0.svg?style=flat-square&labelColor=0B0F19" alt="OpenMP"></a>
+  <a href="https://www.open-mpi.org/"><img src="https://img.shields.io/badge/OpenMPI-4.1-00D9F5.svg?style=flat-square&labelColor=0B0F19" alt="OpenMPI"></a>
 </p>
-
-*One algorithm. Three execution models. Up to a 7990x speedup.*
 
 </div>
 
 ---
 
-## The headline result
+## Scoreboard
 
 Same branch-and-bound algorithm, same optimal answer, three execution models — sequential, OpenMP (shared memory), OpenMPI (distributed memory) — benchmarked on an Apple M2 MacBook Air (8-core, 16GB RAM):
 
@@ -31,17 +41,13 @@ Same branch-and-bound algorithm, same optimal answer, three execution models —
 | Extreme (121 items) | 711ms | 4.6ms | 12.0ms | **155x** | **59x** |
 | Ultimate (121 items) | 2176ms | 5.1ms | 3.5ms | **435x** | **605x** |
 
-Every one of those parallel runs still returns the **provably optimal** knapsack solution — parallelism here buys speed, not approximation.
-
-<div align="center">
+Every parallel run still returns the **provably optimal** knapsack solution — parallelism buys speed, not approximation.
 
 ```
  Sequential   ██████████████████████████████████████████████████  14381ms  (112-item worst case)
  OpenMP       ▏                                                        3.1ms
  OpenMPI      ▏                                                        1.8ms
 ```
-
-</div>
 
 ## Why the numbers swing around
 
@@ -61,6 +67,11 @@ The speedup isn't monotonic with problem size, and that's the interesting part, 
 | Best for | Baseline correctness | Single-node, low-latency sharing | Multi-node scale-out |
 
 **Branch-and-bound core:** fractional-knapsack relaxation for tight upper bounds, best-first search via priority queue, and aggressive pruning wherever a branch's bound can't beat the current best — the same guarantee-of-optimality machinery underneath all three implementations.
+
+---
+
+<details>
+<summary><strong>Appendix: installation, methodology, datasets, project structure, references</strong></summary>
 
 ## Quick start
 
@@ -111,12 +122,12 @@ OptiSack/
 4. Horowitz, E., & Sahni, S. (1974). Computing partitions with applications to the knapsack problem. *Journal of the ACM*, 21(2), 277-292.
 5. Pisinger, D. (2005). Where are the hard knapsack problems? *Computers & Operations Research*, 32(9), 2271-2284.
 
+</details>
+
 ---
 
 <div align="center">
 
 **Alaqmar G. and Connor B.** · Department of Computer Science, Brock University · COSC 3P93
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:00D9F5,100:00F5A0&height=100&section=footer" />
 
 </div>
