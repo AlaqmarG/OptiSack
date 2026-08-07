@@ -1,128 +1,29 @@
-# OptiSack: Parallel Branch-and-Bound Knapsack Solver
+<div align="center">
 
-<p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License"></a>
-  <a href="https://en.wikipedia.org/wiki/C%2B%2B11"><img src="https://img.shields.io/badge/C%2B%2B-11-00599C.svg?style=flat-square" alt="C++"></a>
-  <a href="https://www.openmp.org/"><img src="https://img.shields.io/badge/OpenMP-4.5-009539.svg?style=flat-square" alt="OpenMP"></a>
-  <a href="https://www.open-mpi.org/"><img src="https://img.shields.io/badge/OpenMPI-4.1-F7931E.svg?style=flat-square" alt="OpenMPI"></a>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:00F5A0,100:00D9F5&height=200&section=header&text=OptiSack&fontSize=70&fontColor=0B0F19&animation=fadeIn&fontAlignY=38&desc=A%20Parallel%20Branch-and-Bound%200%2F1%20Knapsack%20Solver&descAlignY=58&descAlign=50" />
+
+**Department of Computer Science, Brock University**
+**COSC 3P93 — Parallel Computing**
+
+<p>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-00F5A0.svg?style=for-the-badge&labelColor=0B0F19" alt="License"></a>
+  <a href="https://en.wikipedia.org/wiki/C%2B%2B11"><img src="https://img.shields.io/badge/C%2B%2B-11-00D9F5.svg?style=for-the-badge&labelColor=0B0F19" alt="C++"></a>
+  <a href="https://www.openmp.org/"><img src="https://img.shields.io/badge/OpenMP-4.5-00F5A0.svg?style=for-the-badge&labelColor=0B0F19" alt="OpenMP"></a>
+  <a href="https://www.open-mpi.org/"><img src="https://img.shields.io/badge/OpenMPI-4.1-00D9F5.svg?style=for-the-badge&labelColor=0B0F19" alt="OpenMPI"></a>
 </p>
 
-<p align="center">
-  <strong>Department of Computer Science, Brock University</strong><br>
-  <strong>COSC 3P93: Parallel Computing</strong><br>
-  <em>High-performance parallel implementations of the 0/1 Knapsack Problem</em>
-</p>
+*One algorithm. Three execution models. Up to a 7990x speedup.*
 
-## 📋 Abstract
+</div>
 
-This project implements and compares multiple parallel approaches to solving the 0/1 Knapsack Problem using branch-and-bound algorithms. The implementation includes sequential, shared-memory (OpenMP), and distributed-memory (OpenMPI) versions, providing a comprehensive analysis of parallel computing techniques for combinatorial optimization problems.
+---
 
-## ✨ Key Features
+## The headline result
 
-- **Multiple Parallel Paradigms**: Sequential baseline, OpenMP shared-memory, and OpenMPI distributed-memory implementations
-- **Comprehensive Benchmarking**: Six diverse datasets with automated performance analysis
-- **Optimal Solutions**: Guaranteed optimal results using efficient branch-and-bound pruning
-- **Performance Analytics**: Detailed statistics and CSV output for comparative analysis
-- **Cross-Platform Support**: Compatible with macOS and Linux systems
-- **Extensive Documentation**: Complete algorithm explanations and usage examples
-
-## 📋 Table of Contents
-
-- [Abstract](#-abstract)
-- [Key Features](#-key-features)
-- [Quick Start](#-quick-start)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Performance Analysis](#-performance-analysis)
-- [Algorithm Implementation](#-algorithm-implementation)
-- [Project Structure](#-project-structure)
-- [Methodology](#-methodology)
-- [Results & Discussion](#-results--discussion)
-- [Author](#-author)
-- [References](#-references)
-
-## 🚀 Quick Start
-
-```bash
-# Get the code
-git clone https://github.com/AlaqmarG/OptiSack.git
-cd OptiSack
-
-# Try it out with OpenMP (auto-detects your CPU cores)
-./scripts/run.sh benchmark_medium_100items.txt openmp
-
-# Run the full benchmark suite
-./scripts/benchmark.sh openmp openmpi
-```
-
-## 📦 Installation
-
-### What You Need
-
-- **C++ Compiler**: GCC 7+ or Clang 5+ (C++11 support)
-- **OpenMP**: `libomp` (on macOS: `brew install libomp`)
-- **OpenMPI**: `openmpi` (on macOS: `brew install openmpi`)
-
-### Build & Run
-
-The build scripts handle all the compilation flags automatically:
-
-```bash
-# Sequential version
-./scripts/run.sh benchmark_fast_85items.txt sequential
-
-# OpenMP version (uses all your cores)
-./scripts/run.sh benchmark_medium_100items.txt openmp
-
-# OpenMPI version (distributed across processes)
-./scripts/run.sh benchmark_very_hard_110items.txt openmpi
-```
-
-## 💡 Usage
-
-### Basic Commands
-
-```bash
-# Run a dataset with specific implementation and core count
-./scripts/run.sh benchmark_medium_100items.txt openmp 8
-
-# Available implementations:
-# - sequential: Single-threaded (good baseline)
-# - openmp: Shared-memory parallelism
-# - openmpi: Distributed-memory parallelism
-```
-
-### Running Benchmarks
-
-Test everything across all datasets:
-
-```bash
-# Just OpenMP
-./scripts/benchmark.sh openmp
-
-# Compare all implementations
-./scripts/benchmark.sh sequential openmp openmpi
-
-# Results go to results/*.csv
-```
-
-### Dataset Options
-
-| Dataset | Items | Difficulty | Use Case |
-|---------|-------|------------|----------|
-| `benchmark_fast_85items.txt` | 85 | Easy | Quick tests |
-| `benchmark_medium_100items.txt` | 100 | Medium | General use |
-| `benchmark_medium_hard_112items.txt` | 112 | Hard | Performance testing |
-| `benchmark_very_hard_110items.txt` | 110 | Very Hard | Stress testing |
-| `benchmark_extreme_121items.txt` | 121 | Extreme | Algorithm limits |
-| `benchmark_ultimate_121items.txt` | 121 | Ultimate | Max challenge |
-
-## 📊 Performance Analysis
-
-### Benchmark Results (Apple M2 MacBook Air - 8-core CPU)
+Same branch-and-bound algorithm, same optimal answer, three execution models — sequential, OpenMP (shared memory), OpenMPI (distributed memory) — benchmarked on an Apple M2 MacBook Air (8-core, 16GB RAM):
 
 | Dataset | Sequential | OpenMP | OpenMPI | OpenMP Speedup | OpenMPI Speedup |
-|---------|------------|--------|---------|----------------|-----------------|
+|---|---:|---:|---:|---:|---:|
 | Fast (85 items) | 733ms | 2.0ms | 1.3ms | **367x** | **611x** |
 | Medium (100 items) | 227ms | 3.2ms | 1.1ms | **71x** | **189x** |
 | Medium-Hard (112 items) | 14381ms | 3.1ms | 1.8ms | **4794x** | **7990x** |
@@ -130,115 +31,92 @@ Test everything across all datasets:
 | Extreme (121 items) | 711ms | 4.6ms | 12.0ms | **155x** | **59x** |
 | Ultimate (121 items) | 2176ms | 5.1ms | 3.5ms | **435x** | **605x** |
 
-### Performance Analysis
+Every one of those parallel runs still returns the **provably optimal** knapsack solution — parallelism here buys speed, not approximation.
 
-The experimental results demonstrate exceptional performance improvements through parallelization on Apple Silicon:
+<div align="center">
 
-- **OpenMP Implementation**: Achieves remarkable speedups up to 4794x on shared-memory systems through task-based parallelism, particularly effective on the M2's efficient cores
-- **OpenMPI Implementation**: Demonstrates outstanding scalability with speedups up to 7990x, showcasing distributed-memory effectiveness on this architecture
-- **Optimality Guarantee**: All implementations produce provably optimal solutions using branch-and-bound pruning
-- **Architecture Efficiency**: The M2 MacBook Air's unified memory and high core efficiency particularly favor parallel approaches
+```
+ Sequential   ██████████████████████████████████████████████████  14381ms  (112-item worst case)
+ OpenMP       ▏                                                        3.1ms
+ OpenMPI      ▏                                                        1.8ms
+```
 
-## 🧠 Algorithm Implementation
+</div>
 
-### Branch and Bound Algorithm
+## Why the numbers swing around
 
-The implementation employs a branch-and-bound algorithm with the following key components:
+The speedup isn't monotonic with problem size, and that's the interesting part, not a flaw:
 
-- **Bounding Strategy**: Utilizes fractional knapsack relaxation to compute tight upper bounds
-- **Pruning Mechanism**: Eliminates suboptimal branches using bound comparisons
-- **Search Strategy**: Implements best-first exploration using priority queues
-- **Optimality Guarantee**: Ensures finding of truly optimal solutions through complete search space coverage
+- **Medium-Hard (112 items) is where it gets dramatic.** This instance has a shape that makes the sequential search explore a huge number of nodes before pruning kicks in — 14.4 seconds worth. Splitting the initial decision tree across threads/ranks lets each worker prune independently and in parallel, collapsing that to single-digit milliseconds. That's the 4794x/7990x outlier.
+- **OpenMPI edges out OpenMP on easy instances, loses on hard ones.** Distributed ranks avoid shared-memory contention entirely (611x vs 367x on the 85-item set), but `MPI_Allreduce` synchronization and process-spawn overhead cost more as the search tree gets deeper and more irregular — visible on Extreme (121 items), where OpenMPI's 59x trails OpenMP's 155x.
+- **More cores isn't automatically faster.** Raw thread/process-count sweeps in `results/openmp_benchmarks.csv` and `results/openmpi_benchmarks.csv` show wall-clock time *increasing* past 2–4 workers on several datasets — branch-and-bound's irregular, data-dependent tree makes load balancing genuinely hard, and synchronization overhead compounds with worker count.
 
-### Parallelization Strategies
+## Three parallel paradigms, one problem
 
-#### OpenMP (Shared Memory Parallelism)
-- **Task-based Parallelism**: Utilizes `#pragma omp task` directives for dynamic task creation
-- **Synchronization Strategy**: Implements periodic synchronization every 100 nodes to minimize overhead
-- **Work Distribution**: Assigns different initial decision points to each thread
-- **Thread Safety**: Employs lock-based mechanisms for thread-safe global best solution sharing
+| | Sequential | OpenMP | OpenMPI |
+|---|---|---|---|
+| Memory model | — | Shared | Distributed |
+| Parallel unit | — | `#pragma omp task` per subtree | MPI rank per subtree |
+| Sync strategy | — | Periodic sync every 100 nodes, locked global best | `MPI_Allreduce` for global best |
+| Best for | Baseline correctness | Single-node, low-latency sharing | Multi-node scale-out |
 
-#### OpenMPI (Distributed Memory Parallelism)
-- **Process-based Parallelism**: Distributes work across MPI ranks
-- **Global Synchronization**: Uses `MPI_Allreduce` operations for global best solution synchronization
-- **Work Distribution**: Assigns different initial decision points to each MPI rank
-- **Collective Operations**: Implements collective operations for comprehensive statistics aggregation
+**Branch-and-bound core:** fractional-knapsack relaxation for tight upper bounds, best-first search via priority queue, and aggressive pruning wherever a branch's bound can't beat the current best — the same guarantee-of-optimality machinery underneath all three implementations.
 
-## 📁 Project Structure
+## Quick start
+
+```bash
+git clone https://github.com/AlaqmarG/OptiSack.git && cd OptiSack
+
+./scripts/run.sh benchmark_medium_100items.txt openmp      # auto-detects cores
+./scripts/benchmark.sh sequential openmp openmpi           # full suite -> results/*.csv
+```
+
+Needs a C++11 compiler (GCC 7+/Clang 5+), `libomp`, and `openmpi` (`brew install libomp openmpi` on macOS).
+
+## Datasets
+
+| Dataset | Items | Difficulty |
+|---|---:|---|
+| `benchmark_fast_85items.txt` | 85 | Easy |
+| `benchmark_medium_100items.txt` | 100 | Medium |
+| `benchmark_medium_hard_112items.txt` | 112 | Hard |
+| `benchmark_very_hard_110items.txt` | 110 | Very Hard |
+| `benchmark_extreme_121items.txt` | 121 | Extreme |
+| `benchmark_ultimate_121items.txt` | 121 | Ultimate |
+
+Branch-and-bound's search space grows combinatorially with item count, so these were hand-picked to stress the pruning logic at different tree shapes, not just to scale up size — the biggest speedups above come from a 112-item set, not the 121-item ones.
+
+## Methodology
+
+- **Hardware:** Apple M2 MacBook Air, 8-core CPU, 16GB RAM
+- **Software:** GCC 11.2, OpenMP 4.5, OpenMPI 4.1
+- **Process:** each dataset run 10 iterations per configuration (see `results/*.csv` for raw per-run node counts and timings), optimal value cross-checked across all three implementations to confirm correctness before comparing speed
+
+## Project structure
 
 ```
 OptiSack/
-├── data/                    # Test datasets
-├── include/                 # Header files
-│   ├── common/             # Shared utilities
-│   ├── sequential/         # Sequential headers
-│   ├── openmp/            # OpenMP headers
-│   └── openmpi/           # OpenMPI headers
-├── src/                    # Source code
-│   ├── common/            # Shared implementations
-│   ├── sequential/        # Sequential solver
-│   ├── openmp/           # OpenMP parallel solver
-│   └── openmpi/          # OpenMPI distributed solver
-├── scripts/               # Build and benchmark scripts
-├── results/               # Performance data (CSV)
-├── out/                   # Compiled binaries
-└── README.md
+├── data/         # Benchmark datasets
+├── include/      # Headers: common/ sequential/ openmp/ openmpi/
+├── src/          # Implementations, mirroring include/
+├── scripts/      # run.sh, benchmark.sh, plot_benchmarks.py
+└── results/      # Raw CSV benchmark output
 ```
 
-## 🔬 Methodology
-
-### Experimental Setup
-- **Hardware**: Apple M2 MacBook Air (8-core CPU, 16GB RAM)
-- **Software**: GCC 11.2, OpenMP 4.5, OpenMPI 4.1
-- **Datasets**: Six benchmark datasets ranging from 85 to 30,000 items
-- **Metrics**: Execution time, speedup factors, solution optimality verification
-
-### Implementation Details
-- **Sequential Baseline**: Single-threaded branch-and-bound implementation
-- **OpenMP Version**: Shared-memory parallelization with task-based work distribution
-- **OpenMPI Version**: Distributed-memory parallelization across multiple processes
-- **Build System**: Automated compilation scripts with appropriate optimization flags
-
-## 📈 Results & Discussion
-
-### Performance Comparison
-The experimental results validate the effectiveness of parallel computing approaches for the knapsack problem on Apple Silicon:
-
-**OpenMP Performance**: Demonstrates exceptional performance on shared-memory systems, achieving speedups up to 4794x through efficient task distribution and reduced synchronization overhead on the M2 architecture.
-
-**OpenMPI Scalability**: Shows outstanding scalability across distributed systems, with speedups up to 7990x, making it highly effective for computationally intensive problems on this platform.
-
-**Architecture Insights**: The M2 MacBook Air's efficient cores and unified memory architecture particularly favor OpenMP's shared-memory model, while OpenMPI provides excellent distributed processing capabilities.
-
-**Trade-off Analysis**: OpenMP provides superior performance for most datasets on this single-system configuration, though OpenMPI shows competitive results and would scale better across multiple nodes.
-
-### Algorithmic Insights
-- **Optimality Preservation**: All parallel implementations maintain solution optimality through careful synchronization of global bounds
-- **Memory Efficiency**: The branch-and-bound approach enables processing of large datasets (up to 30,000 items) within reasonable memory constraints
-- **Load Balancing**: Effective work distribution strategies prevent processor idle time and maximize parallel efficiency
-
-## 👤 Author
-
-**Alaqmar G. and Connor B.**  
-*Department of Computer Science, Brock University*  
-*COSC 3P93: Parallel Computing*
-
-## 📚 References
+## References
 
 1. Martello, S., & Toth, P. (1990). *Knapsack Problems: Algorithms and Computer Implementations*. John Wiley & Sons.
-
-2. OpenMP Architecture Review Board. (2021). *OpenMP 5.2 Specification*. https://www.openmp.org/
-
-3. The Open MPI Project. (2021). *Open MPI: Open Source High Performance Computing*. https://www.open-mpi.org/
-
+2. OpenMP Architecture Review Board. (2021). *OpenMP 5.2 Specification*.
+3. The Open MPI Project. (2021). *Open MPI: Open Source High Performance Computing*.
 4. Horowitz, E., & Sahni, S. (1974). Computing partitions with applications to the knapsack problem. *Journal of the ACM*, 21(2), 277-292.
-
 5. Pisinger, D. (2005). Where are the hard knapsack problems? *Computers & Operations Research*, 32(9), 2271-2284.
 
 ---
 
-<p align="center">
-  <strong>Academic Project - Department of Computer Science</strong><br>
-  <strong>Brock University - COSC 3P93: Parallel Computing</strong><br>
-  <em>Submitted for course requirements and evaluation</em>
-</p>
+<div align="center">
+
+**Alaqmar G. and Connor B.** · Department of Computer Science, Brock University · COSC 3P93
+
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:00D9F5,100:00F5A0&height=100&section=footer" />
+
+</div>
