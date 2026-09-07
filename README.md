@@ -121,23 +121,34 @@ Test everything across all datasets:
 
 ### Benchmark Results (Apple M2 MacBook Air - 8-core CPU)
 
-| Dataset | Sequential | OpenMP | OpenMPI | OpenMP Speedup | OpenMPI Speedup |
-|---------|------------|--------|---------|----------------|-----------------|
-| Fast (85 items) | 733ms | 2.0ms | 1.3ms | **367x** | **611x** |
-| Medium (100 items) | 227ms | 3.2ms | 1.1ms | **71x** | **189x** |
-| Medium-Hard (112 items) | 14381ms | 3.1ms | 1.8ms | **4794x** | **7990x** |
-| Very Hard (110 items) | 1670ms | 3.3ms | 6.2ms | **522x** | **269x** |
-| Extreme (121 items) | 711ms | 4.6ms | 12.0ms | **155x** | **59x** |
-| Ultimate (121 items) | 2176ms | 5.1ms | 3.5ms | **435x** | **605x** |
+All figures below are recomputed directly from the committed CSVs in `results/`,
+as mean time per run over 10 iterations. For each dataset the best thread count
+(OpenMP) or process count (OpenMPI) is reported.
+
+| Dataset | Sequential | OpenMP (best) | Speedup | OpenMPI (best) | Speedup |
+|---------|-----------:|--------------:|--------:|---------------:|--------:|
+| 85 items | 121.4 ms | 81.8 ms (4 threads) | 1.48x | 286.4 ms (2 procs) | 0.42x |
+| 100 items | 157.7 ms | 77.5 ms (4 threads) | 2.04x | 2550.8 ms (2 procs) | 0.06x |
+| 110 items | 79.7 ms | 66.3 ms (6 threads) | 1.20x | 149.8 ms (2 procs) | 0.53x |
+| 112 items | 129.1 ms | 102.1 ms (4 threads) | 1.26x | 5029.3 ms (2 procs) | 0.03x |
+| 121 items | 5179.2 ms | 901.7 ms (4 threads) | 5.74x | 1725.7 ms (2 procs) | 3.00x |
+| 130 (subset sum) | 2856.7 ms | 359.6 ms (4 threads) | **7.94x** | 738.8 ms (2 procs) | 3.87x |
+| 140 (subset sum) | 1435.2 ms | 1863.5 ms (4 threads) | 0.77x | 679.4 ms (2 procs) | 2.11x |
+
+> **Correction.** Earlier versions of this README reported speedups of 4794x and
+> 7990x. Those numbers were wrong and are not reproducible from the data in this
+> repository. The real best case is **7.94x** with OpenMP on the 130-item subset-sum
+> instance. Nothing about branch-and-bound on a single 8-core laptop can produce a
+> four-figure speedup, and the table above replaces the claim that it did.
 
 ### Performance Analysis
 
 The experimental results demonstrate exceptional performance improvements through parallelization on Apple Silicon:
 
-- **OpenMP Implementation**: Achieves remarkable speedups up to 4794x on shared-memory systems through task-based parallelism, particularly effective on the M2's efficient cores
-- **OpenMPI Implementation**: Demonstrates outstanding scalability with speedups up to 7990x, showcasing distributed-memory effectiveness on this architecture
-- **Optimality Guarantee**: All implementations produce provably optimal solutions using branch-and-bound pruning
-- **Architecture Efficiency**: The M2 MacBook Air's unified memory and high core efficiency particularly favor parallel approaches
+- **OpenMP**: Speedup grows with the search tree. It is roughly flat (1.2x-2.0x) on the small instances, where the parallel region barely amortizes its own overhead, and reaches 5.7x-7.9x on the two instances that take seconds rather than milliseconds. On 140-item subset sum it is a 0.77x *slowdown*.
+- **OpenMPI**: Slower than the sequential baseline on four of seven datasets, badly so on 112 items (0.03x). Every rank redundantly explores the same 5.5M nodes on the smaller instances, so message-passing overhead is paid for no reduction in work. It only pays off on the two largest instances.
+- **Optimality**: The strongest result here. All three implementations agree on the optimal value for all seven datasets, so the parallel pruning does not sacrifice correctness.
+- **Honest read**: On one 8-core laptop this is a study of when parallel branch-and-bound stops being worth it, not a demonstration of large speedups.
 
 ## 🧠 Algorithm Implementation
 
@@ -190,7 +201,7 @@ OptiSack/
 ### Experimental Setup
 - **Hardware**: Apple M2 MacBook Air (8-core CPU, 16GB RAM)
 - **Software**: GCC 11.2, OpenMP 4.5, OpenMPI 4.1
-- **Datasets**: Six benchmark datasets ranging from 85 to 30,000 items
+- **Datasets**: Seven benchmark datasets from 85 to 140 items, including two subset-sum instances
 - **Metrics**: Execution time, speedup factors, solution optimality verification
 
 ### Implementation Details
@@ -204,13 +215,13 @@ OptiSack/
 ### Performance Comparison
 The experimental results validate the effectiveness of parallel computing approaches for the knapsack problem on Apple Silicon:
 
-**OpenMP Performance**: Demonstrates exceptional performance on shared-memory systems, achieving speedups up to 4794x through efficient task distribution and reduced synchronization overhead on the M2 architecture.
+**OpenMP**: Best measured speedup is 7.94x at 4 threads on the 130-item subset-sum instance, against a theoretical ceiling of 8x on an 8-core machine. Speedup tracks problem size: instances that finish in ~100 ms show almost none, because thread setup and the shared bound update cost about as much as the work saved.
 
-**OpenMPI Scalability**: Shows outstanding scalability across distributed systems, with speedups up to 7990x, making it highly effective for computationally intensive problems on this platform.
+**OpenMPI**: Generally slower than the sequential baseline. Each rank walks the same node count on the smaller instances, so the run pays communication cost without dividing the search. It only beats sequential on the 121-item and subset-sum instances, and never beats OpenMP.
 
-**Architecture Insights**: The M2 MacBook Air's efficient cores and unified memory architecture particularly favor OpenMP's shared-memory model, while OpenMPI provides excellent distributed processing capabilities.
+**Where the speedup comes from**: Not from more cores alone. It comes from a deeper search tree giving the shared incumbent bound time to prune. That is why the two slowest sequential instances are the only ones with meaningful gains.
 
-**Trade-off Analysis**: OpenMP provides superior performance for most datasets on this single-system configuration, though OpenMPI shows competitive results and would scale better across multiple nodes.
+**Correctness**: All seven datasets produce identical optimal values across sequential, OpenMP and OpenMPI runs.
 
 ### Algorithmic Insights
 - **Optimality Preservation**: All parallel implementations maintain solution optimality through careful synchronization of global bounds
